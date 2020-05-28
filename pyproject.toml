@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "swt"
+version = "0.1.0"
+description = "Simple Web Token library for Python"
+authors = ["David Jack Wange Olrik <david@olrik.dk>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/davidolrik/python-swt"
+repository = "https://github.com/davidolrik/python-swt"
+keywords = ["swt"]
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'Intended Audience :: Developers',
+]
+packages = [
+    { include = "swt", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.7|^3.8"
+pycryptodome = "^3.9.7"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.4.2"
+flake8 = "^3.8.1"
+coverage = {extras = ["toml"], version = "^5.1"}
+pytest-cov = "^2.9.0"
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.coverage.run]
+branch = true
+source = ["swt"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 90
+exclude_lines = [
+  "pragma: no cover",
+  "raise NotImplementedError"
+]
+
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

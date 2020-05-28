@@ -1,0 +1,84 @@
+> __version__ = '0.1.0'
+  
+> from Crypto.PublicKey import RSA
+> from Crypto.Signature import PKCS1_v1_5
+> from Crypto.Hash import SHA256
+> from urllib.parse import parse_qsl, unquote
+> from base64 import b64decode
+> import time
+> from os import listdir, getcwd
+> from pathlib import Path
+  
+  
+> class SWT:
+>     def __init__(self, token=None):
+          # Assume the worst
+!         self.token_is_signed = False
+!         self.token_is_expired = True
+  
+          # Internal data
+!         self.token_raw = None
+!         self.token_claims = {}
+  
+          # If called with a token, set and verify
+!         if token is not None:
+!             self.token(token)
+  
+>     @property
+>     def is_valid(self):
+!         return not self.token_is_expired and self.token_is_signed
+  
+>     @property
+>     def is_expired(self):
+!         return self.token_is_expired
+  
+>     @property
+>     def is_signed(self):
+!         return self.token_is_signed
+  
+>     def __bool__(self):
+!         return self.is_valid
+  
+>     def __str__(self):
+!         value = (
+!             f"SWT:[Issuer={self.token_claims.get('Issuer','unknown')} sub={self.token_claims.get('sub','unknown')} "
+!             f"valid={self.is_valid} signed={self.is_signed} expired={self.is_expired} "
+!             f"expire_date={time.strftime('%Y-%m-%dT%H:%M:%S%z', time.localtime(int(self.token_claims.get('ExpiresOn','0'))))}]"
+!         )
+!         return value
+  
+>     def token(self, token):
+          # Allow caller to take http header and parse it directly to us
+!         self.token_raw = token.replace('Bearer ', '')
+  
+          # Split token into data and signature
+!         self.token_data, self.token_signature = self.token_raw.rsplit(
+!             '&RSASHA256=')
+!         print(f"Data: {self.token_data}")
+!         print(f"Signature: {self.token_signature}")
+  
+          # Convert to internal format
+!         self.token_signature_raw = b64decode(unquote(self.token_signature))
+!         self.token_claims = dict(parse_qsl(self.token_data))
+  
+          # Make sure we have a signature
+!         if self.token_signature is None or not self.token_signature:
+!             self.signature_is_valid = False
+!             return
+  
+          # Load public key
+!         self.public_key = Path(
+!             f'stskeys/{self.token_claims["Issuer"]}-publickey.pem').read_text()
+  
+          # Validate signature
+!         rsa_key = RSA.importKey(self.public_key)
+!         signer = PKCS1_v1_5.new(rsa_key)
+!         digest = SHA256.new(self.token_data.encode('utf8'))
+!         if signer.verify(digest, self.token_signature_raw):
+!             self.token_is_signed = True
+!             print("Signature is valid")
+  
+          # Check expire date
+!         if int(self.token_claims.get('ExpiresOn', 0)) < int(time.time()):
+!             print("Token is expired")
+!             self.token_is_expired = True
