@@ -7,6 +7,7 @@ license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/davidolrik/python-swt"
 repository = "https://github.com/davidolrik/python-swt"
+documentation = "https://python-swt.readthedocs.io/"
 keywords = ["swt"]
 classifiers = [
     'Development Status :: 4 - Beta',
