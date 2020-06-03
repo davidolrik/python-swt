@@ -55,12 +55,15 @@ def test_expired_swt_rsa_sha256():
     token.ttl = 1
     token.set_claim('sub', 42)
     token.set_claim('foo', 'bar')
-    token.sign()
+    token_str = token.sign()
     time.sleep(2)
 
     assert token.is_expired == True, "Token is expired"
     assert token.is_signed, "Token is signed"
     assert token.is_valid == False, "Token is invalid (signed but expired)"
+    assert type(token.token_str) == str, "Token serialization is a string (from object)"
+    assert type(token_str) == str, "Token serialization is a string (from sign method)"
+
 
 def test_valid_swt_from_string_without_key_locators():
     token = SWT_RSA_SHA256(pytest.test_token_str)

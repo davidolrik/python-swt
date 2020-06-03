@@ -169,7 +169,7 @@ class SWT_RSA_SHA256(SWT):
     def algorithm(self):
         return SWT.ALGORITHM_RSA_SHA256
 
-    def sign(self):
+    def sign(self) -> str:
         self._token_claims[self.__class__.exp_claim] = int(time.time()) + self._ttl
         self._token_claims_str = urlencode(self._token_claims)
         key = RSA.importKey(self.get_private_key())
@@ -178,6 +178,8 @@ class SWT_RSA_SHA256(SWT):
         self._token_signature = signer.sign(digest)
         self._token_signature_str = quote(b64encode(self._token_signature))
         self._token_str = self._token_claims_str + f'&{self.algorithm}=' + self._token_signature_str
+
+        return self.token_str
 
 
     @property
