@@ -75,14 +75,14 @@ def test_valid_swt_from_string():
     assert token.is_valid, "Token is valid (both signed and not expired)"
     assert bool(token) == True, "Token with valid signature has a boolean value of True"
     assert token.get_claim('foo') == 'bar', "Token has claim foo with value of bar"
-
+    assert token.token_str == str(token), "Token has string value"
 
 def test_swt_broken_signature():
     # Remove one character from token signature
     broken_token_str = pytest.test_token_str[0:len(pytest.test_token_str)-5] + pytest.test_token_str[-4:]
 
     token = MySWT()
-    token.token(broken_token_str)
+    token.token_str = broken_token_str
     assert token.is_signed == False, "Token has broken signed (we broke it on purpose)"
     assert bool(token) == False, "Token with invalid signature has a boolean value of False"
     assert token.is_expired == True, "Token is expired, even if date is ok"
@@ -92,7 +92,7 @@ def test_swt_no_signature():
     # Remove signature from valid token, and create new invalid token
     token = MySWT()
     broken_token_str, _ = pytest.test_token_str.rsplit(f'&{token.algorithm}=')
-    token.token(broken_token_str)
+    token.token_str = broken_token_str
 
     assert token.is_signed == False, "Token has broken signed (we broke it on purpose)"
     assert bool(token) == False, "Token with invalid signature has a boolean value of False"

@@ -65,8 +65,28 @@ Creating and signing new tokens
   token.set_claim('sub', 42)
   token.set_claim('foo', 'bar')
 
-  # Sign token with private key
-  token.sign()
+  # Sign token with private key, and get serialized token back
+  token_str = token.sign()
+
+  # You can also get the serialized token from the token objectt by accessing
+  # the token_str property
+  token_str = token.token_str
+
+As a convenience, if you use the token object in string or boolean context it
+will do *the right thing™*.
+
+.. code:: python
+
+  # Token in string context gives you the serialized token
+  token_str = str(token)
+
+  # Token in boolean context gives you the validity of the token
+  is_valid = bool(token)
+
+  # Parse token from string, and do stuff with it, if it is valid
+  token = MySWT(http_header_value)
+  if token:
+      # Do stuff with the valid token
 
 API Reference
 -------------

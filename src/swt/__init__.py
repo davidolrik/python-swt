@@ -20,21 +20,21 @@ class SWT:
     extend the algorithm specific sub class. Currently only RSA SHA256 is implemented.
     """
     # Supported algorithm constants
-    ALGORITHM_RSA_SHA256  = 'RSASHA256'
-    ALGORITHM_HMAC_SHA256 = 'HMACSHA256'
+    ALGORITHM_RSA_SHA256 : str = 'RSASHA256'
+    ALGORITHM_HMAC_SHA256: str = 'HMACSHA256'
 
     # Internals to override Selected algorithm
-    default_ttl = 3600
+    default_ttl: int = 3600
 
     # Standard claim names
-    iss_claim = 'Issuer'
-    exp_claim = 'ExpiresOn'
-    aud_claim = 'Audience'
+    iss_claim: str = 'Issuer'
+    exp_claim: str = 'ExpiresOn'
+    aud_claim: str = 'Audience'
 
     # Extra claim names modeled after JWT claim names
-    sub_claim = 'sub'
-    iat_claim = 'iat'
-    sid_claim = 'sid'
+    sub_claim: str = 'sub'
+    iat_claim: str = 'iat'
+    sid_claim: str = 'sid'
 
     def __init__(self, token_str: typing.Optional[str] = None):
         """Create new SWT"""
@@ -47,16 +47,24 @@ class SWT:
 
         # If called with a token, set and verify
         if token_str is not None:
-            self.token(token_str)
+            self.token_str = token_str
 
     @property
     def is_valid(self):
-        """Check if the SWT is both sign and not expired"""
+        """Check if the SWT is both sign and not expired
+
+        Returns:
+            bool: token validity
+        """
         return self.is_signed and not self.is_expired
 
     @property
     def is_expired(self):
-        """Check if the SWT is expired"""
+        """Check if the SWT is expired
+
+        Returns:
+            bool: is expired
+        """
         if not self.is_signed:
             return True
         return int(self._token_claims.get(self.__class__.exp_claim, 0)) < int(time.time())
@@ -89,22 +97,29 @@ class SWT:
     def __str__(self):
         return self._token_str
 
-    def get_public_key(self):
+    def get_public_key(self) -> str:
         """Implement this in your own subclass to find and load the public key by issuer"""
         raise NotImplementedError("Please implement your own get_public_key() method")
 
-    def get_private_key(self):
+    def get_private_key(self) -> str:
         """Implement this in your own subclass to find and load the private key by issuer"""
         raise NotImplementedError("Please implement your own get_public_key() method")
 
-    def set_claim(self, claim, value):
+    def set_claim(self, claim: str, value: str):
         self._token_claims[claim] = value
 
-    def get_claim(self, claim):
+    def get_claim(self, claim: str) -> str:
         return self._token_claims[claim]
 
-    def token(self, token: str):
-        """Set token from string"""
+    @property
+    def token_str(self) -> str:
+        """Token as serialized string"""
+        return self._token_str
+
+    @token_str.setter
+    def token_str(self, token: str):
+        """Token as string"""
+
         # Allow caller to take http header and parse it directly to us
         self._token_str = str(token).replace('Bearer ', '')
 
@@ -128,13 +143,21 @@ class SWT:
         """The algorithm used for the SWT"""
         raise NotImplementedError("Please implement algorithm specific algorithm @property method")
 
-    def sign(self):
-        """Algorithm specific sign() method"""
+    def sign(self) -> str:
+        """Algorithm specific sign() method
+
+        Returns:
+            str: signed token
+        """
         raise NotImplementedError("Please implement algorithm specific sign() method")
 
     @property
     def is_signed(self):
-        """Algorithm specific is_signed() property"""
+        """Algorithm specific is_signed() property
+
+        Returns:
+            bool: signed status
+        """
         raise NotImplementedError("Please implement algorithm specific is_signed @property method")
 
 class SWT_RSA_SHA256(SWT):
@@ -156,8 +179,9 @@ class SWT_RSA_SHA256(SWT):
         self._token_signature_str = quote(b64encode(self._token_signature))
         self._token_str = self._token_claims_str + f'&{self.algorithm}=' + self._token_signature_str
 
+
     @property
-    def is_signed(self):
+    def is_signed(self) -> bool:
         # Give on beforehand if we don't have a signature
         if not self._token_signature:
             return False
