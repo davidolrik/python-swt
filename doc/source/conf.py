@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('../../src'))
 project = 'swt'
 copyright = '2020, David Jack Wange Olrik'
 author = 'David Jack Wange Olrik'
-
+master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
 
