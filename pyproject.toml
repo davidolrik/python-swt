@@ -25,6 +25,9 @@ pytest = "^5.4.2"
 flake8 = "^3.8.1"
 coverage = {extras = ["toml"], version = "^5.1"}
 pytest-cov = "^2.9.0"
+sphinx = "^3.0.4"
+sphinx_rtd_theme = "^0.4.3"
+towncrier = "^19.2.0"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
@@ -41,6 +44,11 @@ exclude_lines = [
   "raise NotImplementedError"
 ]
 
+[tool.towncrier]
+package = "swt"
+# package_dir = "src"
+directory = "newsfragments"
+filename = "doc/source/changelog.rst"
 
 [build-system]
 requires = ["poetry>=0.12"]

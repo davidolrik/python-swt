@@ -14,6 +14,11 @@ from Crypto.Signature import PKCS1_v1_5
 import binascii
 
 class SWT:
+    """Simple Web Token base class
+
+    To use this library, you must choose which algorithm you want to use, and
+    extend the algorithm specific sub class. Currently only RSA SHA256 is implemented.
+    """
     # Supported algorithm constants
     ALGORITHM_RSA_SHA256  = 'RSASHA256'
     ALGORITHM_HMAC_SHA256 = 'HMACSHA256'
@@ -32,6 +37,7 @@ class SWT:
     sid_claim = 'sid'
 
     def __init__(self, token_str: typing.Optional[str] = None):
+        """Create new SWT"""
         # Internal data
         self._token_str = None
         self._token_claims = {}
@@ -45,16 +51,19 @@ class SWT:
 
     @property
     def is_valid(self):
+        """Check if the SWT is both sign and not expired"""
         return self.is_signed and not self.is_expired
 
     @property
     def is_expired(self):
-        if self._token_signature is None:
+        """Check if the SWT is expired"""
+        if not self.is_signed:
             return True
         return int(self._token_claims.get(self.__class__.exp_claim, 0)) < int(time.time())
 
     @property
     def issuer(self):
+        """Issuer of token"""
         return self._token_claims.get(self.__class__.iss_claim, None)
 
     @issuer.setter
@@ -63,6 +72,7 @@ class SWT:
 
     @property
     def ttl(self):
+        """Time to live in seconds"""
         return self._ttl
 
     @ttl.setter
@@ -73,15 +83,18 @@ class SWT:
         return self._ttl
 
     def __bool__(self):
+        """SWT in bool context will return is_valid"""
         return self.is_valid
 
     def __str__(self):
         return self._token_str
 
     def get_public_key(self):
+        """Implement this in your own subclass to find and load the public key by issuer"""
         raise NotImplementedError("Please implement your own get_public_key() method")
 
     def get_private_key(self):
+        """Implement this in your own subclass to find and load the private key by issuer"""
         raise NotImplementedError("Please implement your own get_public_key() method")
 
     def set_claim(self, claim, value):
@@ -91,6 +104,7 @@ class SWT:
         return self._token_claims[claim]
 
     def token(self, token: str):
+        """Set token from string"""
         # Allow caller to take http header and parse it directly to us
         self._token_str = str(token).replace('Bearer ', '')
 
@@ -111,16 +125,23 @@ class SWT:
 
     @property
     def algorithm(self):
+        """The algorithm used for the SWT"""
         raise NotImplementedError("Please implement algorithm specific algorithm @property method")
 
     def sign(self):
+        """Algorithm specific sign() method"""
         raise NotImplementedError("Please implement algorithm specific sign() method")
 
     @property
     def is_signed(self):
+        """Algorithm specific is_signed() property"""
         raise NotImplementedError("Please implement algorithm specific is_signed @property method")
 
 class SWT_RSA_SHA256(SWT):
+    """SWT using RSA and SHA256
+
+    Extend this class and implement the key locater methods
+    """
     @property
     def algorithm(self):
         return SWT.ALGORITHM_RSA_SHA256
@@ -149,7 +170,11 @@ class SWT_RSA_SHA256(SWT):
 
 
 class SWT_HMAC_SHA256(SWT):
-    algorithm = SWT.ALGORITHM_HMAC_SHA256
+    """Not yet implemented"""
+
+    @property
+    def algorithm(self):
+        return SWT.ALGORITHM_HMAC_SHA256 # pragma: no cover
 
     def sign(self):
         raise NotImplementedError()
