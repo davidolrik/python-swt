@@ -3,11 +3,6 @@ Python SWT
 
 To use this module, simply implement and use your own algorithm specific SWT class.
 
-For the RSA SHA256 algorithm you need to implement the two key locator methods,
-but if you only want to verify tokens, then you can skip implementing the
-``get_private_key()`` method.
-
-
 More [1]_ info about *Simple Web Tokens* can be found at
 `Microsoft <https://docs.microsoft.com/en-us/previous-versions/azure/azure-services/hh781551(v=azure.100)?redirectedfrom=MSDN>`_
 who originated the spec. back in 2009.
@@ -17,8 +12,11 @@ who originated the spec. back in 2009.
 Using RSA SHA256
 ----------------
 
-Create your own token class that extends from ``SWT_RSA_SHA256```, and implement
+Create your own token class that extends from ``SWT_RSA_SHA256``, and implement
 the key locators you need.
+
+If you only want to verify tokens, then you can skip implementing the
+``get_private_key()`` method.
 
 .. code:: python
 
