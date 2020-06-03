@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "swt"
-version = "0.1.0"
+version = "0.1.1"
 description = "Simple Web Token library for Python"
 authors = ["David Jack Wange Olrik <david@olrik.dk>"]
 license = "MIT"
