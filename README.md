@@ -15,3 +15,4 @@ You can find the docs [here](https://python-swt.readthedocs.io/).
 ## TODO
 
 - Add support HMAC SHA256
+- Add  Raises: KeyNotFoundError to sign()
