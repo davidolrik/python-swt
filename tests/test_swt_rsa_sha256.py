@@ -41,13 +41,16 @@ def test_sign_swt_rsa_sha256():
     token.ttl = 360
     token.set_claim("sub", 42)
     token.set_claim("foo", "bar")
-    token.sign()
+    test_token_str = token.sign()
     pytest.test_token_str = str(token)
 
     assert token.is_expired == False, "Token is not expired"
     assert token.is_signed, "Token is signed"
     assert token.is_valid, "Token is valid (both signed and not expired)"
-    assert str(pytest.test_token_str), f"We have a token as a string {token}"
+    assert type(pytest.test_token_str) is str, f"We have a token as a string {token}"
+    assert (
+        str(pytest.test_token_str) == test_token_str
+    ), "sign() returns token as string"
     assert token.ttl == 360, "TTL for token is set to 360"
     with pytest.raises(ValueError):
         token.ttl = 0

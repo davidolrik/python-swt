@@ -3,8 +3,7 @@ __version__ = "0.1.3"
 import time
 import typing
 from base64 import b64decode, b64encode
-from os import getcwd, listdir
-from pathlib import Path
+from typing import Optional
 from urllib.parse import parse_qsl, quote, unquote, urlencode
 
 from Crypto.Hash import SHA256
@@ -116,7 +115,7 @@ class SWT:
         return self._token_claims[claim]
 
     @property
-    def token_str(self) -> str:
+    def token_str(self) -> Optional[str]:
         """Token as serialized string"""
         return self._token_str
 
@@ -182,7 +181,7 @@ class SWT_RSA_SHA256(SWT):
         return SWT.ALGORITHM_RSA_SHA256
 
     def sign(self) -> str:
-        self._token_claims[self.__class__.exp_claim] = int(time.time()) + self._ttl
+        self._token_claims[self.__class__.exp_claim] = str(int(time.time()) + self._ttl)
         self._token_claims_str = urlencode(self._token_claims)
         key = RSA.importKey(self.get_private_key())
         digest = SHA256.new(self._token_claims_str.encode("utf8"))
@@ -190,10 +189,10 @@ class SWT_RSA_SHA256(SWT):
         self._token_signature = signer.sign(digest)
         self._token_signature_str = quote(b64encode(self._token_signature))
         self._token_str = (
-            self._token_claims_str + f"&{self.algorithm}=" + self._token_signature_str
+            f"{self._token_claims_str}&{self.algorithm}={self._token_signature_str}"
         )
 
-        return self.token_str
+        return self._token_str
 
     @property
     def is_signed(self) -> bool:
