@@ -33,7 +33,7 @@ pytest-black = "^0.3.10"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov --cov-report=xml"
+addopts = "--cov --cov-report=xml --black"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

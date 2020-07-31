@@ -1,4 +1,4 @@
-__version__ = '0.1.3'
+__version__ = "0.1.3"
 
 import time
 import typing
@@ -13,28 +13,30 @@ from Crypto.Signature import PKCS1_v1_5
 
 import binascii
 
+
 class SWT:
     """Simple Web Token base class
 
     To use this library, you must choose which algorithm you want to use, and
     extend the algorithm specific sub class. Currently only RSA SHA256 is implemented.
     """
+
     # Supported algorithm constants
-    ALGORITHM_RSA_SHA256 : str = 'RSASHA256'
-    ALGORITHM_HMAC_SHA256: str = 'HMACSHA256'
+    ALGORITHM_RSA_SHA256: str = "RSASHA256"
+    ALGORITHM_HMAC_SHA256: str = "HMACSHA256"
 
     # Internals to override Selected algorithm
     default_ttl: int = 3600
 
     # Standard claim names
-    iss_claim: str = 'Issuer'
-    exp_claim: str = 'ExpiresOn'
-    aud_claim: str = 'Audience'
+    iss_claim: str = "Issuer"
+    exp_claim: str = "ExpiresOn"
+    aud_claim: str = "Audience"
 
     # Extra claim names modeled after JWT claim names
-    sub_claim: str = 'sub'
-    iat_claim: str = 'iat'
-    sid_claim: str = 'sid'
+    sub_claim: str = "sub"
+    iat_claim: str = "iat"
+    sid_claim: str = "sid"
 
     def __init__(self, token_str: typing.Optional[str] = None):
         """Create new SWT"""
@@ -67,7 +69,9 @@ class SWT:
         """
         if not self.is_signed:
             return True
-        return int(self._token_claims.get(self.__class__.exp_claim, 0)) < int(time.time())
+        return int(self._token_claims.get(self.__class__.exp_claim, 0)) < int(
+            time.time()
+        )
 
     @property
     def issuer(self):
@@ -121,11 +125,13 @@ class SWT:
         """Token as string"""
 
         # Allow caller to take http header and parse it directly to us
-        self._token_str = str(token).replace('Bearer ', '')
+        self._token_str = str(token).replace("Bearer ", "")
 
         # Split token into claims and signature
         try:
-            self._token_claims_str, self._token_signature_str = self._token_str.rsplit(f'&{self.algorithm}=')
+            self._token_claims_str, self._token_signature_str = self._token_str.rsplit(
+                f"&{self.algorithm}="
+            )
         except ValueError:
             return
 
@@ -141,7 +147,9 @@ class SWT:
     @property
     def algorithm(self):
         """The algorithm used for the SWT"""
-        raise NotImplementedError("Please implement algorithm specific algorithm @property method")
+        raise NotImplementedError(
+            "Please implement algorithm specific algorithm @property method"
+        )
 
     def sign(self) -> str:
         """Algorithm specific sign() method
@@ -158,13 +166,17 @@ class SWT:
         Returns:
             bool: signed status
         """
-        raise NotImplementedError("Please implement algorithm specific is_signed @property method")
+        raise NotImplementedError(
+            "Please implement algorithm specific is_signed @property method"
+        )
+
 
 class SWT_RSA_SHA256(SWT):
     """SWT using RSA and SHA256
 
     Extend this class and implement the key locater methods
     """
+
     @property
     def algorithm(self):
         return SWT.ALGORITHM_RSA_SHA256
@@ -173,14 +185,15 @@ class SWT_RSA_SHA256(SWT):
         self._token_claims[self.__class__.exp_claim] = int(time.time()) + self._ttl
         self._token_claims_str = urlencode(self._token_claims)
         key = RSA.importKey(self.get_private_key())
-        digest = SHA256.new(self._token_claims_str.encode('utf8'))
+        digest = SHA256.new(self._token_claims_str.encode("utf8"))
         signer = PKCS1_v1_5.new(key)
         self._token_signature = signer.sign(digest)
         self._token_signature_str = quote(b64encode(self._token_signature))
-        self._token_str = self._token_claims_str + f'&{self.algorithm}=' + self._token_signature_str
+        self._token_str = (
+            self._token_claims_str + f"&{self.algorithm}=" + self._token_signature_str
+        )
 
         return self.token_str
-
 
     @property
     def is_signed(self) -> bool:
@@ -191,7 +204,7 @@ class SWT_RSA_SHA256(SWT):
         # Validate signature
         key = RSA.importKey(self.get_public_key())
         signature = PKCS1_v1_5.new(key)
-        digest = SHA256.new(self._token_claims_str.encode('utf8'))
+        digest = SHA256.new(self._token_claims_str.encode("utf8"))
         return signature.verify(digest, self._token_signature)
 
 
@@ -200,7 +213,7 @@ class SWT_HMAC_SHA256(SWT):
 
     @property
     def algorithm(self):
-        return SWT.ALGORITHM_HMAC_SHA256 # pragma: no cover
+        return SWT.ALGORITHM_HMAC_SHA256  # pragma: no cover
 
     def sign(self):
         raise NotImplementedError()
