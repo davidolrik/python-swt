@@ -22,13 +22,17 @@ python = "^3.7|^3.8"
 pycryptodome = "^3.9.7"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.4.2"
+pytest = "^6.0.1"
 flake8 = "^3.8.1"
 coverage = {extras = ["toml"], version = "^5.1"}
 pytest-cov = "^2.9.0"
 sphinx = "^3.0.4"
 sphinx_rtd_theme = "^0.4.3"
 towncrier = "^19.2.0"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov --cov-report=xml"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
