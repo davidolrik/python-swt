@@ -23,12 +23,13 @@ pycryptodome = "^3.9.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.1"
-flake8 = "^3.8.1"
 coverage = {extras = ["toml"], version = "^5.1"}
 pytest-cov = "^2.9.0"
 sphinx = "^3.0.4"
 sphinx_rtd_theme = "^0.4.3"
 towncrier = "^19.2.0"
+black = {version = "^19.10b0", allow-prereleases = true}
+pytest-black = "^0.3.10"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
