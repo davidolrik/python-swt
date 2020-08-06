@@ -18,7 +18,7 @@ class MySWT(SWT_RSA_SHA256):
 
 
 # Allow generated token to be saved between tests
-def pytest_configure():
+def pytest_configure(config):
     pytest.test_token_str = None
 
 
@@ -26,7 +26,7 @@ def test_sign_swt_rsa_sha256_without_key_locators():
     token = SWT_RSA_SHA256()
     token.issuer = "test-issuer"
     token.ttl = 360
-    token.set_claim("sub", 42)
+    token.set_claim("sub", "42")
     token.set_claim("foo", "bar")
     with pytest.raises(NotImplementedError):
         token.sign()
@@ -36,7 +36,7 @@ def test_sign_swt_rsa_sha256():
     token = MySWT()
     token.issuer = "test-issuer"
     token.ttl = 360
-    token.set_claim("sub", 42)
+    token.set_claim("sub", "42")
     token.set_claim("foo", "bar")
     test_token_str = token.sign()
     pytest.test_token_str = str(token)
@@ -57,16 +57,16 @@ def test_expired_swt_rsa_sha256():
     token = MySWT()
     token.issuer = "test-issuer"
     token.ttl = 1
-    token.set_claim("sub", 42)
+    token.set_claim("sub", "42")
     token.set_claim("foo", "bar")
     token_str = token.sign()
     time.sleep(2)
 
     assert token.is_expired == True, "Token is expired"
-    assert token.is_signed, "Token is signed"
+    assert token.is_signed == True, "Token is signed"
     assert token.is_valid == False, "Token is invalid (signed but expired)"
-    assert type(token.token_str) == str, "Token serialization is a string (from object)"
-    assert type(token_str) == str, "Token serialization is a string (from sign method)"
+    assert type(token.token_str) is str, "Token serialization is a string (from object)"
+    assert type(token_str) is str, "Token serialization is a string (from sign method)"
 
 
 def test_valid_swt_from_string_without_key_locators():
