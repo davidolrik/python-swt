@@ -4,3 +4,4 @@ dist
 /.coverage
 *.egg-info
 /.venv
+/.vscode

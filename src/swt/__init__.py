@@ -1,5 +1,4 @@
-__version__ = "0.1.3"
-
+import binascii
 import time
 import typing
 from base64 import b64decode, b64encode
@@ -10,7 +9,9 @@ from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
 
-import binascii
+import poetry_version
+
+__version__ = poetry_version.extract(source_file=__file__)
 
 
 class SWT:

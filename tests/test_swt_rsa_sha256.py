@@ -1,6 +1,3 @@
-from swt import __version__
-
-from swt import SWT
 from swt import SWT_RSA_SHA256
 from pathlib import Path
 import pytest
