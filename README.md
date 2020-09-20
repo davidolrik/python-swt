@@ -1,5 +1,11 @@
 # Python SWT Library
 
+![Python version](https://img.shields.io/pypi/pyversions/swt)
+![PyPI version](https://img.shields.io/pypi/v/swt)
+![format](https://img.shields.io/pypi/format/swt)
+![status](https://img.shields.io/pypi/status/swt)
+![license](https://img.shields.io/pypi/l/swt)
+
 Python library for handling `Simple Web Tokens`.
 
 ## Documentation
