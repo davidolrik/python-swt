@@ -51,6 +51,8 @@ def test_sign_swt_rsa_sha256():
     assert token.ttl == 360, "TTL for token is set to 360"
     with pytest.raises(ValueError):
         token.ttl = 0
+    with pytest.raises(KeyError):
+        token.get_claim("non-existant-claim")
 
 
 def test_expired_swt_rsa_sha256():

@@ -2,7 +2,7 @@ import binascii
 import time
 import typing
 from base64 import b64decode, b64encode
-from typing import Optional
+from typing import Dict, Optional
 from urllib.parse import parse_qsl, quote, unquote, urlencode
 
 from Crypto.Hash import SHA256
@@ -42,7 +42,7 @@ class SWT:
         """Create new SWT"""
         # Internal data
         self._token_str = None
-        self._token_claims = {}
+        self._token_claims: Dict[str, str] = {}
         self._ttl = SWT.default_ttl
 
         self._token_signature = None
@@ -113,6 +113,8 @@ class SWT:
         self._token_claims[claim] = value
 
     def get_claim(self, claim: str) -> str:
+        if claim not in self._token_claims:
+            raise KeyError(f"claim {claim} not found in token")
         return self._token_claims[claim]
 
     @property
