@@ -5,11 +5,10 @@ from base64 import b64decode, b64encode
 from typing import Dict, Optional
 from urllib.parse import parse_qsl, quote, unquote, urlencode
 
+import poetry_version
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
-
-import poetry_version
 
 __version__ = poetry_version.extract(source_file=__file__)
 

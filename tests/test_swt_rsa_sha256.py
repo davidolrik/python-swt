@@ -1,7 +1,9 @@
-from swt import SWT_RSA_SHA256
-from pathlib import Path
-import pytest
 import time
+from pathlib import Path
+
+import pytest
+
+from swt import SWT_RSA_SHA256
 
 
 class MySWT(SWT_RSA_SHA256):
