@@ -198,7 +198,7 @@ class SWT_RSA_SHA256(SWT):
 
     @property
     def is_signed(self) -> bool:
-        # Give on beforehand if we don't have a signature
+        # Give up on beforehand if we don't have a signature
         if not self._token_signature:
             return False
 
