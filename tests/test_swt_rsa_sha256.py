@@ -43,13 +43,13 @@ def test_sign_swt_rsa_sha256():
     test_token_str = token.sign()
     pytest.test_token_str = str(token)
 
-    assert token.is_expired == False, "Token is not expired"
+    assert not token.is_expired, "Token is not expired"
     assert token.is_signed, "Token is signed"
     assert token.is_valid, "Token is valid (both signed and not expired)"
     assert type(pytest.test_token_str) is str, f"We have a token as a string {token}"
-    assert (
-        str(pytest.test_token_str) == test_token_str
-    ), "sign() returns token as string"
+    assert str(pytest.test_token_str) == test_token_str, (
+        "sign() returns token as string"
+    )
     assert token.ttl == 360, "TTL for token is set to 360"
     with pytest.raises(ValueError):
         token.ttl = 0
@@ -66,9 +66,9 @@ def test_expired_swt_rsa_sha256():
     token_str = token.sign()
     time.sleep(2)
 
-    assert token.is_expired == True, "Token is expired"
-    assert token.is_signed == True, "Token is signed"
-    assert token.is_valid == False, "Token is invalid (signed but expired)"
+    assert token.is_expired, "Token is expired"
+    assert token.is_signed, "Token is signed"
+    assert not token.is_valid, "Token is invalid (signed but expired)"
     assert type(token.token_str) is str, "Token serialization is a string (from object)"
     assert type(token_str) is str, "Token serialization is a string (from sign method)"
 
@@ -76,16 +76,16 @@ def test_expired_swt_rsa_sha256():
 def test_valid_swt_from_string_without_key_locators():
     token = SWT_RSA_SHA256(pytest.test_token_str)
     with pytest.raises(NotImplementedError):
-        assert token.is_valid == False, "Token is invalid"
+        assert not token.is_valid, "Token is invalid"
 
 
 def test_valid_swt_from_string():
     token = MySWT(pytest.test_token_str)
 
-    assert token.is_expired == False, "Token is not expired"
+    assert not token.is_expired, "Token is not expired"
     assert token.is_signed, "Token is signed"
     assert token.is_valid, "Token is valid (both signed and not expired)"
-    assert bool(token) == True, "Token with valid signature has a boolean value of True"
+    assert bool(token), "Token with valid signature has a boolean value of True"
     assert token.get_claim("foo") == "bar", "Token has claim foo with value of bar"
     assert token.token_str == str(token), "Token has string value"
 
@@ -99,12 +99,10 @@ def test_swt_broken_signature():
 
     token = MySWT()
     token.token_str = broken_token_str
-    assert token.is_signed == False, "Token has broken signed (we broke it on purpose)"
-    assert (
-        bool(token) == False
-    ), "Token with invalid signature has a boolean value of False"
-    assert token.is_expired == True, "Token is expired, even if date is ok"
-    assert token.is_valid == False, "Token is invalid"
+    assert not token.is_signed, "Token has broken signed (we broke it on purpose)"
+    assert not bool(token), "Token with invalid signature has a boolean value of False"
+    assert token.is_expired, "Token is expired, even if date is ok"
+    assert not token.is_valid, "Token is invalid"
 
 
 def test_swt_no_signature():
@@ -113,9 +111,7 @@ def test_swt_no_signature():
     broken_token_str, _ = pytest.test_token_str.rsplit(f"&{token.algorithm}=")
     token.token_str = broken_token_str
 
-    assert token.is_signed == False, "Token has broken signed (we broke it on purpose)"
-    assert (
-        bool(token) == False
-    ), "Token with invalid signature has a boolean value of False"
-    assert token.is_expired == True, "Token is expired, even if date is ok"
-    assert token.is_valid == False, "Token is invalid"
+    assert not token.is_signed, "Token has broken signed (we broke it on purpose)"
+    assert not bool(token), "Token with invalid signature has a boolean value of False"
+    assert token.is_expired, "Token is expired, even if date is ok"
+    assert not token.is_valid, "Token is invalid"
