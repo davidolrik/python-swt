@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "swt"
-version = "0.5.0"
+version = "0.6.0"
 description = "Simple Web Token library for Python"
 authors = ["David Jack Wange Olrik <david@olrik.dk>"]
 license = "MIT"
@@ -19,7 +19,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.13,<4.0"
-pycryptodome = "^3.23.0"
+cryptography = "^46.0.5"
 sphinx = {version = "^9.1.0", optional = true}
 sphinx_rtd_theme = {version = "^3.1.0", optional = true}
 

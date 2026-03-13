@@ -2,6 +2,13 @@ import time
 from pathlib import Path
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization import (
+    Encoding,
+    NoEncryption,
+    PrivateFormat,
+)
 
 from swt import SWT_RSA_SHA256
 
@@ -103,6 +110,71 @@ def test_swt_broken_signature():
     assert not bool(token), "Token with invalid signature has a boolean value of False"
     assert token.is_expired, "Token is expired, even if date is ok"
     assert not token.is_valid, "Token is invalid"
+
+
+def test_swt_tampered_claims():
+    # Modify a claim value while keeping the original valid signature,
+    # so the signature is decodable but cryptographically invalid
+    token = MySWT(pytest.test_token_str)
+    original_claims_str, signature_part = pytest.test_token_str.rsplit(
+        f"&{token.algorithm}=", 1
+    )
+    tampered_claims_str = original_claims_str.replace("foo=bar", "foo=baz")
+    tampered_token_str = f"{tampered_claims_str}&{token.algorithm}={signature_part}"
+
+    tampered_token = MySWT()
+    tampered_token.token_str = tampered_token_str
+    assert not tampered_token.is_signed, "Tampered token fails signature verification"
+    assert not tampered_token.is_valid, "Tampered token is invalid"
+
+
+def test_sign_with_non_rsa_key():
+    # Generate an EC private key PEM to trigger the TypeError guard
+    ec_key = ec.generate_private_key(ec.SECP256R1())
+    ec_pem = ec_key.private_bytes(
+        Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()
+    ).decode()
+
+    class EcSWT(SWT_RSA_SHA256):
+        exp_claim = "exp"
+        iss_claim = "iss"
+
+        def get_private_key(self):
+            return ec_pem
+
+        def get_public_key(self):
+            return ""
+
+    token = EcSWT()
+    token.issuer = "test-issuer"
+    token.ttl = 360
+    token.set_claim("sub", "42")
+    with pytest.raises(TypeError, match="Expected an RSA private key"):
+        token.sign()
+
+
+def test_verify_with_non_rsa_key():
+    # Use a valid signed token but verify against an EC public key
+    ec_key = ec.generate_private_key(ec.SECP256R1())
+    ec_pub_pem = (
+        ec_key.public_key()
+        .public_bytes(Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
+        .decode()
+    )
+
+    class EcPubSWT(SWT_RSA_SHA256):
+        exp_claim = "exp"
+        iss_claim = "iss"
+
+        def get_public_key(self):
+            return ec_pub_pem
+
+        def get_private_key(self):
+            return ""
+
+    token = EcPubSWT(pytest.test_token_str)
+    with pytest.raises(TypeError, match="Expected an RSA public key"):
+        token.is_signed
 
 
 def test_swt_no_signature():

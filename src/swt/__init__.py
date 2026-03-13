@@ -2,13 +2,14 @@ import binascii
 import time
 import typing
 from base64 import b64decode, b64encode
+from importlib.metadata import version
 from typing import Dict, Optional
 from urllib.parse import parse_qsl, quote, unquote, urlencode
 
-from importlib.metadata import version
-from Crypto.Hash import SHA256
-from Crypto.PublicKey import RSA
-from Crypto.Signature import PKCS1_v1_5
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 
 __version__ = version("swt")
 
@@ -98,7 +99,7 @@ class SWT:
         return self.is_valid
 
     def __str__(self):
-        return self._token_str
+        return str(self._token_str)
 
     def get_public_key(self) -> str:
         """Implement this in your own subclass to find and load the public key by issuer"""
@@ -185,10 +186,16 @@ class SWT_RSA_SHA256(SWT):
     def sign(self) -> str:
         self._token_claims[self.__class__.exp_claim] = str(int(time.time()) + self._ttl)
         self._token_claims_str = urlencode(self._token_claims)
-        key = RSA.importKey(self.get_private_key())
-        digest = SHA256.new(self._token_claims_str.encode("utf8"))
-        signer = PKCS1_v1_5.new(key)
-        self._token_signature = signer.sign(digest)
+        loaded_key = serialization.load_pem_private_key(
+            self.get_private_key().encode("utf8"), password=None
+        )
+        if not isinstance(loaded_key, RSAPrivateKey):
+            raise TypeError("Expected an RSA private key")
+        self._token_signature = loaded_key.sign(
+            self._token_claims_str.encode("utf8"),
+            padding.PKCS1v15(),
+            hashes.SHA256(),
+        )
         self._token_signature_str = quote(b64encode(self._token_signature))
         self._token_str = (
             f"{self._token_claims_str}&{self.algorithm}={self._token_signature_str}"
@@ -203,10 +210,21 @@ class SWT_RSA_SHA256(SWT):
             return False
 
         # Validate signature
-        key = RSA.importKey(self.get_public_key())
-        signature = PKCS1_v1_5.new(key)
-        digest = SHA256.new(self._token_claims_str.encode("utf8"))
-        return signature.verify(digest, self._token_signature)
+        loaded_key = serialization.load_pem_public_key(
+            self.get_public_key().encode("utf8")
+        )
+        if not isinstance(loaded_key, RSAPublicKey):
+            raise TypeError("Expected an RSA public key")
+        try:
+            loaded_key.verify(
+                self._token_signature,
+                self._token_claims_str.encode("utf8"),
+                padding.PKCS1v15(),
+                hashes.SHA256(),
+            )
+            return True
+        except InvalidSignature:
+            return False
 
 
 class SWT_HMAC_SHA256(SWT):
