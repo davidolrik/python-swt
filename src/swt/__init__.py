@@ -5,12 +5,12 @@ from base64 import b64decode, b64encode
 from typing import Dict, Optional
 from urllib.parse import parse_qsl, quote, unquote, urlencode
 
-import poetry_version
+from importlib.metadata import version
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
 
-__version__ = poetry_version.extract(source_file=__file__)
+__version__ = version("swt")
 
 
 class SWT:
