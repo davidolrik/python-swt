@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "swt"
-version = "0.6.0"
+version = "0.7.0"
 description = "Simple Web Token library for Python"
 authors = ["David Jack Wange Olrik <david@olrik.dk>"]
 license = "MIT"
@@ -19,7 +19,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.13,<4.0"
-cryptography = "^46.0.5"
+cryptography = "^48.0.1"
 sphinx = {version = "^9.1.0", optional = true}
 sphinx_rtd_theme = {version = "^3.1.0", optional = true}
 
@@ -59,6 +59,36 @@ package = "swt"
 # package_dir = "src"
 directory = "newsfragments"
 filename = "doc/source/changelog.rst"
+
+[[tool.towncrier.type]]
+directory = "security"
+name = "Security"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "feature"
+name = "Features"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "bugfix"
+name = "Bugfixes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "doc"
+name = "Improved Documentation"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "removal"
+name = "Deprecations and Removals"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "misc"
+name = "Misc"
+showcontent = false
 
 [build-system]
 requires = ["poetry>=0.12"]

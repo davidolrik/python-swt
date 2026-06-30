@@ -1,0 +1,2 @@
+[secrets]
+POETRY_PYPI_TOKEN_PYPI= { provider = "keychain", value = "POETRY_PYPI_TOKEN_PYPI" }
