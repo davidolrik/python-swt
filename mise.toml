@@ -1,0 +1,40 @@
+[tasks.help]
+alias= "default"
+run = "mise tasks --local"
+
+[tasks.test]
+description = "Run the test suite"
+run = "uvx poetry run pytest"
+
+[tasks.changelog]
+description = "Render newsfragments into doc/source/changelog.rst (uses version from pyproject.toml)"
+run = "uvx poetry run towncrier build --yes"
+
+[tasks.build]
+description = "Build sdist and wheel into dist/"
+run = "uvx poetry build"
+
+[tasks.publish]
+description = "Publish the current version to PyPI (token injected from keychain via fnox)"
+run = "fnox exec -- uvx poetry publish"
+
+[tasks.release]
+description = "Cut a release: test, bump version, changelog, commit, tag, push, build, publish"
+usage = 'arg "<bump>" help="patch | minor | major | or an explicit version like 0.8.0"'
+run = '''
+set -euo pipefail
+
+bump="$usage_bump"
+
+mise run test
+uvx poetry version "$bump"
+version=$(uvx poetry version --short)
+mise run changelog
+git add pyproject.toml doc/source/changelog.rst newsfragments
+git commit -m "chore: Cut release ${version}"
+git tag "$version"
+git push
+git push --tags
+mise run build
+mise run publish
+'''
