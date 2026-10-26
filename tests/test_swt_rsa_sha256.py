@@ -2,8 +2,8 @@ import time
 from pathlib import Path
 
 import pytest
-from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
     NoEncryption,
@@ -174,7 +174,7 @@ def test_verify_with_non_rsa_key():
 
     token = EcPubSWT(pytest.test_token_str)
     with pytest.raises(TypeError, match="Expected an RSA public key"):
-        token.is_signed
+        _ = token.is_signed
 
 
 def test_swt_no_signature():

@@ -1,9 +1,7 @@
 import binascii
 import time
-import typing
 from base64 import b64decode, b64encode
 from importlib.metadata import version
-from typing import Dict, Optional
 from urllib.parse import parse_qsl, quote, unquote, urlencode
 
 from cryptography.exceptions import InvalidSignature
@@ -38,11 +36,11 @@ class SWT:
     iat_claim: str = "iat"
     sid_claim: str = "sid"
 
-    def __init__(self, token_str: typing.Optional[str] = None):
+    def __init__(self, token_str: str | None = None):
         """Create new SWT"""
         # Internal data
         self._token_str = None
-        self._token_claims: Dict[str, str] = {}
+        self._token_claims: dict[str, str] = {}
         self._ttl = SWT.default_ttl
 
         self._token_signature = None
@@ -118,7 +116,7 @@ class SWT:
         return self._token_claims[claim]
 
     @property
-    def token_str(self) -> Optional[str]:
+    def token_str(self) -> str | None:
         """Token as serialized string"""
         return self._token_str
 
